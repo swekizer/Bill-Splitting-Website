@@ -1,0 +1,35 @@
+package com.billsplit.backend.service;
+
+import com.billsplit.backend.exception.BadRequestException;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+
+@Service
+public class CloudinaryService {
+
+    private final Cloudinary cloudinary;
+
+    public CloudinaryService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
+
+    public String uploadImage(MultipartFile file){
+        if(file.isEmpty()){
+            throw new BadRequestException("Please select an image file to upload");
+        }
+
+        try{
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e){
+            throw new BadRequestException("Failed to upload image to Cloudinary: " + e.getMessage());
+        }
+    }
+
+
+}
